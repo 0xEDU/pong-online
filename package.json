@@ -4,13 +4,13 @@
   "private": true,
   "workspaces": [
     "client",
-    "server"
+    "game-server"
   ],
   "scripts": {
     "dev": "npm run dev:server & npm run dev:client",
-    "dev:server": "npm run dev -w server",
+    "dev:server": "npm run dev -w game-server",
     "dev:client": "npm run dev -w client",
-    "build": "npm run build -w server && npm run build -w client",
-    "start": "npm run start -w server"
+    "build": "npm run build -w game-server && npm run build -w client",
+    "start": "npm run start -w game-server"
   }
 }
