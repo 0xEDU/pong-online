@@ -206,10 +206,4 @@ export class GameEngine {
       this.state.winner = 2;
     }
   }
-
-  reset(): void {
-    this.state = this.createInitialState();
-    this.player1Direction = 'stop';
-    this.player2Direction = 'stop';
-  }
 }

@@ -42,10 +42,6 @@ export class GameRoom {
     }
   }
 
-  getPlayerCount(): number {
-    return this.players.size;
-  }
-
   handleMessage(ws: WebSocket, message: ClientMessage): void {
     const player = this.players.get(ws);
     if (!player) return;
@@ -117,12 +113,6 @@ export class GameRoom {
       if (player.ws.readyState === WebSocket.OPEN) {
         player.ws.send(data);
       }
-    }
-  }
-
-  send(ws: WebSocket, message: ServerMessage): void {
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify(message));
     }
   }
 
