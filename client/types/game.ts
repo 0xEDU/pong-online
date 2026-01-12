@@ -1,12 +1,9 @@
-// Game constants
+// Game constants (client-side only - server has its own copy)
 export const CANVAS_WIDTH = 800;
 export const CANVAS_HEIGHT = 600;
 export const PADDLE_WIDTH = 10;
 export const PADDLE_HEIGHT = 100;
 export const BALL_SIZE = 10;
-export const PADDLE_SPEED = 8;
-export const BALL_SPEED = 6;
-export const WINNING_SCORE = 5;
 
 // Game state types
 export interface Position {
