@@ -138,4 +138,8 @@ export class GameRoom {
   isFull(): boolean {
     return this.players.size >= 2;
   }
+
+  getPlayerWebSockets(): WebSocket[] {
+    return Array.from(this.players.keys());
+  }
 }

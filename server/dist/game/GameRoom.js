@@ -107,6 +107,9 @@ class GameRoom {
     isFull() {
         return this.players.size >= 2;
     }
+    getPlayerWebSockets() {
+        return Array.from(this.players.keys());
+    }
 }
 exports.GameRoom = GameRoom;
 //# sourceMappingURL=GameRoom.js.map

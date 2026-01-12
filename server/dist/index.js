@@ -133,11 +133,26 @@ function handleDisconnect(ws) {
     if (roomId) {
         const room = rooms.get(roomId);
         if (room) {
+            // Get all players BEFORE removing the disconnecting player
+            const allPlayerWs = room.getPlayerWebSockets();
             room.removePlayer(ws);
-            // Clean up empty rooms
+            // Clean up room if empty, OR clean up remaining player mappings
             if (room.isEmpty()) {
                 rooms.delete(roomId);
                 console.log(`Room ${roomId} deleted (empty)`);
+            }
+            else {
+                // Room still has players but they're being kicked to lobby
+                // Clean up their playerRooms mapping so they can create/join new rooms
+                for (const playerWs of allPlayerWs) {
+                    if (playerWs !== ws) {
+                        playerRooms.delete(playerWs);
+                        console.log(`Cleaned up playerRooms mapping for remaining player in room ${roomId}`);
+                    }
+                }
+                // Delete the room since the game can't continue with one player
+                rooms.delete(roomId);
+                console.log(`Room ${roomId} deleted (opponent disconnected)`);
             }
         }
         playerRooms.delete(ws);

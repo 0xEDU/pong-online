@@ -21,5 +21,6 @@ export declare class GameRoom {
     notifyPlayerJoined(): void;
     isEmpty(): boolean;
     isFull(): boolean;
+    getPlayerWebSockets(): WebSocket[];
 }
 //# sourceMappingURL=GameRoom.d.ts.map
