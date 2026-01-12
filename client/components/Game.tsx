@@ -9,6 +9,7 @@ import {
   PADDLE_HEIGHT,
   BALL_SIZE,
 } from "@/types/game";
+import { GameInstructions } from "./GameInstructions";
 
 interface GameProps {
   gameState: GameState;
@@ -155,9 +156,7 @@ export function Game({ gameState, playerNumber, onPaddleMove }: GameProps) {
         className="border-4 border-gray-700 rounded-lg shadow-2xl"
       />
 
-      <div className="mt-4 text-gray-500 text-sm">
-        Use W/S or Arrow Keys to move. First to 5 points wins.
-      </div>
+      <GameInstructions />
     </div>
   );
 }

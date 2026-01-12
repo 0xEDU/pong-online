@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { GameInstructions } from "./GameInstructions";
 
 interface LobbyProps {
   onCreateRoom: () => void;
@@ -86,9 +87,7 @@ export function Lobby({
         </div>
       )}
 
-      <div className="mt-12 text-gray-500 text-sm">
-        Use W/S or Arrow Keys to move your paddle
-      </div>
+      <GameInstructions />
     </div>
   );
 }

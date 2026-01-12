@@ -1,6 +1,7 @@
 import {
   GameState,
   Ball,
+  Paddle,
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
   PADDLE_WIDTH,
@@ -31,11 +32,9 @@ export class GameEngine {
     };
   }
 
-  private createBall(): Ball {
-    // Random angle between -45 and 45 degrees
+  private createBall(direction?: 1 | -1): Ball {
     const angle = (Math.random() - 0.5) * Math.PI / 2;
-    // Random direction (left or right)
-    const direction = Math.random() > 0.5 ? 1 : -1;
+    const dir = direction ?? (Math.random() > 0.5 ? 1 : -1);
     
     return {
       position: {
@@ -43,7 +42,7 @@ export class GameEngine {
         y: CANVAS_HEIGHT / 2,
       },
       velocity: {
-        dx: Math.cos(angle) * BALL_SPEED * direction,
+        dx: Math.cos(angle) * BALL_SPEED * dir,
         dy: Math.sin(angle) * BALL_SPEED,
       },
     };
@@ -112,42 +111,31 @@ export class GameEngine {
   }
 
   private checkPaddleCollision(): void {
-    const ball = this.state.ball;
     const { player1, player2 } = this.state.paddles;
+    this.handleSinglePaddleCollision(player1, true);
+    this.handleSinglePaddleCollision(player2, false);
+  }
 
-    // Left paddle (player 1)
+  private handleSinglePaddleCollision(paddle: Paddle, isLeftPaddle: boolean): void {
+    const ball = this.state.ball;
+    const paddleX = isLeftPaddle ? PADDLE_WIDTH : CANVAS_WIDTH - PADDLE_WIDTH;
+    const ballEdgeX = isLeftPaddle ? ball.position.x : ball.position.x + BALL_SIZE;
+    const movingTowardPaddle = isLeftPaddle ? ball.velocity.dx < 0 : ball.velocity.dx > 0;
+    const collision = isLeftPaddle ? ballEdgeX <= paddleX : ballEdgeX >= paddleX;
+
     if (
-      ball.position.x <= PADDLE_WIDTH &&
-      ball.position.y + BALL_SIZE >= player1.y &&
-      ball.position.y <= player1.y + PADDLE_HEIGHT &&
-      ball.velocity.dx < 0
+      collision &&
+      ball.position.y + BALL_SIZE >= paddle.y &&
+      ball.position.y <= paddle.y + PADDLE_HEIGHT &&
+      movingTowardPaddle
     ) {
       ball.velocity.dx = -ball.velocity.dx;
-      ball.position.x = PADDLE_WIDTH;
+      ball.position.x = isLeftPaddle ? PADDLE_WIDTH : CANVAS_WIDTH - PADDLE_WIDTH - BALL_SIZE;
       
       // Add spin based on where the ball hit the paddle
-      const hitPosition = (ball.position.y + BALL_SIZE / 2 - player1.y) / PADDLE_HEIGHT;
+      const hitPosition = (ball.position.y + BALL_SIZE / 2 - paddle.y) / PADDLE_HEIGHT;
       ball.velocity.dy = (hitPosition - 0.5) * BALL_SPEED * 2;
       
-      // Increase speed slightly
-      this.increaseSpeed();
-    }
-
-    // Right paddle (player 2)
-    if (
-      ball.position.x + BALL_SIZE >= CANVAS_WIDTH - PADDLE_WIDTH &&
-      ball.position.y + BALL_SIZE >= player2.y &&
-      ball.position.y <= player2.y + PADDLE_HEIGHT &&
-      ball.velocity.dx > 0
-    ) {
-      ball.velocity.dx = -ball.velocity.dx;
-      ball.position.x = CANVAS_WIDTH - PADDLE_WIDTH - BALL_SIZE;
-      
-      // Add spin based on where the ball hit the paddle
-      const hitPosition = (ball.position.y + BALL_SIZE / 2 - player2.y) / PADDLE_HEIGHT;
-      ball.velocity.dy = (hitPosition - 0.5) * BALL_SPEED * 2;
-      
-      // Increase speed slightly
       this.increaseSpeed();
     }
   }
@@ -170,29 +158,14 @@ export class GameEngine {
     // Player 2 scores (ball went past left side)
     if (ball.position.x < 0) {
       this.state.paddles.player2.score++;
-      this.resetBall(-1); // Ball goes toward player 1
+      this.state.ball = this.createBall(-1); // Ball goes toward player 1
     }
 
     // Player 1 scores (ball went past right side)
     if (ball.position.x > CANVAS_WIDTH) {
       this.state.paddles.player1.score++;
-      this.resetBall(1); // Ball goes toward player 2
+      this.state.ball = this.createBall(1); // Ball goes toward player 2
     }
-  }
-
-  private resetBall(direction: 1 | -1): void {
-    const angle = (Math.random() - 0.5) * Math.PI / 2;
-    
-    this.state.ball = {
-      position: {
-        x: CANVAS_WIDTH / 2,
-        y: CANVAS_HEIGHT / 2,
-      },
-      velocity: {
-        dx: Math.cos(angle) * BALL_SPEED * direction,
-        dy: Math.sin(angle) * BALL_SPEED,
-      },
-    };
   }
 
   private checkWinner(): void {

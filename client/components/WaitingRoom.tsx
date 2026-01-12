@@ -1,5 +1,43 @@
 "use client";
 
+import { GameInstructions } from "./GameInstructions";
+
+interface PlayerStatusIndicatorProps {
+  playerLabel: string;
+  isCurrentPlayer: boolean;
+  isReady: boolean;
+  isJoined: boolean;
+}
+
+function PlayerStatusIndicator({
+  playerLabel,
+  isCurrentPlayer,
+  isReady,
+  isJoined,
+}: PlayerStatusIndicatorProps) {
+  const getStatusColor = () => {
+    if (isCurrentPlayer) return isReady ? "bg-green-500" : "bg-yellow-500";
+    if (isReady) return "bg-green-500";
+    if (isJoined) return "bg-yellow-500";
+    return "bg-gray-600";
+  };
+
+  const getStatusText = () => {
+    if (isCurrentPlayer) return isReady ? "Ready!" : "You";
+    if (isReady) return "Ready!";
+    if (isJoined) return "Waiting...";
+    return "Not joined";
+  };
+
+  return (
+    <div className="flex flex-col items-center">
+      <div className={`w-6 h-6 rounded-full mb-2 ${getStatusColor()}`} />
+      <span className="text-sm text-gray-400">{playerLabel}</span>
+      <span className="text-xs text-gray-500">{getStatusText()}</span>
+    </div>
+  );
+}
+
 interface WaitingRoomProps {
   roomId: string;
   playerNumber: 1 | 2;
@@ -50,60 +88,18 @@ export function WaitingRoom({
 
       {/* Player status indicators */}
       <div className="flex gap-8 mb-8">
-        <div className="flex flex-col items-center">
-          <div
-            className={`w-6 h-6 rounded-full mb-2 ${
-              playerNumber === 1
-                ? myReady
-                  ? "bg-green-500"
-                  : "bg-yellow-500"
-                : opponentReady
-                  ? "bg-green-500"
-                  : opponentJoined
-                    ? "bg-yellow-500"
-                    : "bg-gray-600"
-            }`}
-          />
-          <span className="text-sm text-gray-400">Player 1</span>
-          <span className="text-xs text-gray-500">
-            {playerNumber === 1
-              ? myReady
-                ? "Ready!"
-                : "You"
-              : opponentReady
-                ? "Ready!"
-                : opponentJoined
-                  ? "Waiting..."
-                  : "Not joined"}
-          </span>
-        </div>
-        <div className="flex flex-col items-center">
-          <div
-            className={`w-6 h-6 rounded-full mb-2 ${
-              playerNumber === 2
-                ? myReady
-                  ? "bg-green-500"
-                  : "bg-yellow-500"
-                : opponentReady
-                  ? "bg-green-500"
-                  : opponentJoined
-                    ? "bg-yellow-500"
-                    : "bg-gray-600"
-            }`}
-          />
-          <span className="text-sm text-gray-400">Player 2</span>
-          <span className="text-xs text-gray-500">
-            {playerNumber === 2
-              ? myReady
-                ? "Ready!"
-                : "You"
-              : opponentReady
-                ? "Ready!"
-                : opponentJoined
-                  ? "Waiting..."
-                  : "Not joined"}
-          </span>
-        </div>
+        <PlayerStatusIndicator
+          playerLabel="Player 1"
+          isCurrentPlayer={playerNumber === 1}
+          isReady={playerNumber === 1 ? myReady : opponentReady}
+          isJoined={playerNumber === 1 || opponentJoined}
+        />
+        <PlayerStatusIndicator
+          playerLabel="Player 2"
+          isCurrentPlayer={playerNumber === 2}
+          isReady={playerNumber === 2 ? myReady : opponentReady}
+          isJoined={playerNumber === 2 || opponentJoined}
+        />
       </div>
 
       {opponentJoined && !myReady && (
@@ -121,9 +117,7 @@ export function WaitingRoom({
         </div>
       )}
 
-      <div className="mt-8 text-gray-500 text-sm">
-        Use W/S or Arrow Keys to move your paddle
-      </div>
+      <GameInstructions />
     </div>
   );
 }

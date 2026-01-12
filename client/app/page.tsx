@@ -51,6 +51,17 @@ function GameApp({ wsUrl }: { wsUrl: string }) {
   const [winner, setWinner] = useState<1 | 2 | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const resetGame = useCallback(() => {
+    setRoomId(null);
+    setPlayerNumber(null);
+    setOpponentJoined(false);
+    setMyReady(false);
+    setOpponentReady(false);
+    setGameState(null);
+    setWinner(null);
+    setAppState("lobby");
+  }, []);
+
   // Handle server messages using subscription
   useEffect(() => {
     const unsubscribe = subscribe((message: ServerMessage) => {
@@ -107,14 +118,7 @@ function GameApp({ wsUrl }: { wsUrl: string }) {
 
         case "PLAYER_DISCONNECTED":
           setError("Opponent disconnected");
-          setAppState("lobby");
-          setRoomId(null);
-          setPlayerNumber(null);
-          setOpponentJoined(false);
-          setMyReady(false);
-          setOpponentReady(false);
-          setGameState(null);
-          setWinner(null);
+          resetGame();
           break;
 
         case "ERROR":
@@ -124,7 +128,7 @@ function GameApp({ wsUrl }: { wsUrl: string }) {
     });
 
     return unsubscribe;
-  }, [subscribe]);
+  }, [subscribe, resetGame]);
 
   const handleCreateRoom = useCallback(() => {
     setError(null);
@@ -152,15 +156,8 @@ function GameApp({ wsUrl }: { wsUrl: string }) {
   );
 
   const handlePlayAgain = useCallback(() => {
-    setRoomId(null);
-    setPlayerNumber(null);
-    setOpponentJoined(false);
-    setMyReady(false);
-    setOpponentReady(false);
-    setGameState(null);
-    setWinner(null);
-    setAppState("lobby");
-  }, []);
+    resetGame();
+  }, [resetGame]);
 
   // Render based on app state
   switch (appState) {
