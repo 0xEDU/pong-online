@@ -1,22 +1,47 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useWebSocket } from './hooks/useWebSocket';
-import { Lobby } from './components/Lobby';
-import { WaitingRoom } from './components/WaitingRoom';
-import { Game } from './components/Game';
-import { GameOver } from './components/GameOver';
-import { GameState, ServerMessage } from './types/game';
+"use client";
 
-type AppState = 'lobby' | 'waiting' | 'playing' | 'gameover';
+import { useState, useEffect, useCallback } from "react";
+import { useWebSocket } from "@/hooks/useWebSocket";
+import { Lobby } from "@/components/Lobby";
+import { WaitingRoom } from "@/components/WaitingRoom";
+import { Game } from "@/components/Game";
+import { GameOver } from "@/components/GameOver";
+import { GameState, ServerMessage } from "@/types/game";
 
-// Use the Vite dev server proxy or connect directly in production
-const WS_URL = import.meta.env.DEV 
-  ? `ws://${window.location.hostname}:3001/ws`
-  : `ws://${window.location.host}/ws`;
+type AppState = "lobby" | "waiting" | "playing" | "gameover";
 
-function App() {
-  const { status, send, subscribe } = useWebSocket(WS_URL);
+function getWebSocketUrl() {
+  if (typeof window === "undefined") return "";
   
-  const [appState, setAppState] = useState<AppState>('lobby');
+  const isDev = process.env.NODE_ENV === "development";
+  if (isDev) {
+    return `ws://${window.location.hostname}:3001/ws`;
+  }
+  return `ws://${window.location.host}/ws`;
+}
+
+export default function Home() {
+  const [wsUrl, setWsUrl] = useState<string>("");
+  
+  useEffect(() => {
+    setWsUrl(getWebSocketUrl());
+  }, []);
+
+  if (!wsUrl) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
+        <div className="text-2xl mb-4">Loading...</div>
+      </div>
+    );
+  }
+
+  return <GameApp wsUrl={wsUrl} />;
+}
+
+function GameApp({ wsUrl }: { wsUrl: string }) {
+  const { status, send, subscribe } = useWebSocket(wsUrl);
+
+  const [appState, setAppState] = useState<AppState>("lobby");
   const [roomId, setRoomId] = useState<string | null>(null);
   const [playerNumber, setPlayerNumber] = useState<1 | 2 | null>(null);
   const [opponentJoined, setOpponentJoined] = useState(false);
@@ -29,17 +54,17 @@ function App() {
   // Handle server messages using subscription
   useEffect(() => {
     const unsubscribe = subscribe((message: ServerMessage) => {
-      console.log('Processing message:', message.type, message);
-      
+      console.log("Processing message:", message.type, message);
+
       switch (message.type) {
-        case 'ROOM_CREATED':
+        case "ROOM_CREATED":
           setRoomId(message.roomId);
           break;
 
-        case 'ROOM_JOINED':
+        case "ROOM_JOINED":
           setRoomId(message.roomId);
           setPlayerNumber(message.playerNumber);
-          setAppState('waiting');
+          setAppState("waiting");
           setError(null);
           // If joining as player 2, opponent (player 1) is already there
           if (message.playerNumber === 2) {
@@ -47,13 +72,13 @@ function App() {
           }
           break;
 
-        case 'PLAYER_JOINED':
+        case "PLAYER_JOINED":
           setOpponentJoined(true);
           break;
 
-        case 'PLAYER_READY_ACK':
+        case "PLAYER_READY_ACK":
           // Update ready state based on which player is ready
-          setPlayerNumber(currentPlayerNumber => {
+          setPlayerNumber((currentPlayerNumber) => {
             if (message.playerNumber === currentPlayerNumber) {
               setMyReady(true);
             } else {
@@ -63,26 +88,26 @@ function App() {
           });
           break;
 
-        case 'WAITING_FOR_PLAYER':
+        case "WAITING_FOR_PLAYER":
           setOpponentJoined(false);
           break;
 
-        case 'GAME_START':
-          setAppState('playing');
+        case "GAME_START":
+          setAppState("playing");
           break;
 
-        case 'GAME_STATE':
+        case "GAME_STATE":
           setGameState(message.state);
           break;
 
-        case 'GAME_OVER':
+        case "GAME_OVER":
           setWinner(message.winner);
-          setAppState('gameover');
+          setAppState("gameover");
           break;
 
-        case 'PLAYER_DISCONNECTED':
-          setError('Opponent disconnected');
-          setAppState('lobby');
+        case "PLAYER_DISCONNECTED":
+          setError("Opponent disconnected");
+          setAppState("lobby");
           setRoomId(null);
           setPlayerNumber(null);
           setOpponentJoined(false);
@@ -92,7 +117,7 @@ function App() {
           setWinner(null);
           break;
 
-        case 'ERROR':
+        case "ERROR":
           setError(message.message);
           break;
       }
@@ -103,22 +128,28 @@ function App() {
 
   const handleCreateRoom = useCallback(() => {
     setError(null);
-    send({ type: 'CREATE_ROOM' });
+    send({ type: "CREATE_ROOM" });
   }, [send]);
 
-  const handleJoinRoom = useCallback((code: string) => {
-    setError(null);
-    send({ type: 'JOIN_ROOM', roomId: code });
-  }, [send]);
+  const handleJoinRoom = useCallback(
+    (code: string) => {
+      setError(null);
+      send({ type: "JOIN_ROOM", roomId: code });
+    },
+    [send]
+  );
 
   const handleReady = useCallback(() => {
-    console.log('Sending PLAYER_READY');
-    send({ type: 'PLAYER_READY' });
+    console.log("Sending PLAYER_READY");
+    send({ type: "PLAYER_READY" });
   }, [send]);
 
-  const handlePaddleMove = useCallback((direction: 'up' | 'down' | 'stop') => {
-    send({ type: 'PADDLE_MOVE', direction });
-  }, [send]);
+  const handlePaddleMove = useCallback(
+    (direction: "up" | "down" | "stop") => {
+      send({ type: "PADDLE_MOVE", direction });
+    },
+    [send]
+  );
 
   const handlePlayAgain = useCallback(() => {
     setRoomId(null);
@@ -128,22 +159,22 @@ function App() {
     setOpponentReady(false);
     setGameState(null);
     setWinner(null);
-    setAppState('lobby');
+    setAppState("lobby");
   }, []);
 
   // Render based on app state
   switch (appState) {
-    case 'lobby':
+    case "lobby":
       return (
         <Lobby
           onCreateRoom={handleCreateRoom}
           onJoinRoom={handleJoinRoom}
-          isConnected={status === 'connected'}
+          isConnected={status === "connected"}
           error={error}
         />
       );
 
-    case 'waiting':
+    case "waiting":
       if (!roomId || !playerNumber) return null;
       return (
         <WaitingRoom
@@ -156,7 +187,7 @@ function App() {
         />
       );
 
-    case 'playing':
+    case "playing":
       if (!gameState || !playerNumber) return null;
       return (
         <Game
@@ -166,7 +197,7 @@ function App() {
         />
       );
 
-    case 'gameover':
+    case "gameover":
       if (!winner || !playerNumber) return null;
       return (
         <GameOver
@@ -180,5 +211,3 @@ function App() {
       return null;
   }
 }
-
-export default App;

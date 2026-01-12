@@ -35,25 +35,25 @@ export interface GameState {
     player1: Paddle;
     player2: Paddle;
   };
-  status: 'waiting' | 'playing' | 'paused' | 'finished';
+  status: "waiting" | "playing" | "paused" | "finished";
   winner?: 1 | 2;
 }
 
 // WebSocket message types
 export type ClientMessage =
-  | { type: 'CREATE_ROOM' }
-  | { type: 'JOIN_ROOM'; roomId: string }
-  | { type: 'PADDLE_MOVE'; direction: 'up' | 'down' | 'stop' }
-  | { type: 'PLAYER_READY' };
+  | { type: "CREATE_ROOM" }
+  | { type: "JOIN_ROOM"; roomId: string }
+  | { type: "PADDLE_MOVE"; direction: "up" | "down" | "stop" }
+  | { type: "PLAYER_READY" };
 
 export type ServerMessage =
-  | { type: 'ROOM_CREATED'; roomId: string }
-  | { type: 'ROOM_JOINED'; roomId: string; playerNumber: 1 | 2 }
-  | { type: 'PLAYER_JOINED'; playerNumber: 1 | 2 }
-  | { type: 'PLAYER_READY_ACK'; playerNumber: 1 | 2 }
-  | { type: 'WAITING_FOR_PLAYER' }
-  | { type: 'GAME_START' }
-  | { type: 'GAME_STATE'; state: GameState }
-  | { type: 'GAME_OVER'; winner: 1 | 2 }
-  | { type: 'PLAYER_DISCONNECTED' }
-  | { type: 'ERROR'; message: string };
+  | { type: "ROOM_CREATED"; roomId: string }
+  | { type: "ROOM_JOINED"; roomId: string; playerNumber: 1 | 2 }
+  | { type: "PLAYER_JOINED"; playerNumber: 1 | 2 }
+  | { type: "PLAYER_READY_ACK"; playerNumber: 1 | 2 }
+  | { type: "WAITING_FOR_PLAYER" }
+  | { type: "GAME_START" }
+  | { type: "GAME_STATE"; state: GameState }
+  | { type: "GAME_OVER"; winner: 1 | 2 }
+  | { type: "PLAYER_DISCONNECTED" }
+  | { type: "ERROR"; message: string };

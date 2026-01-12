@@ -1,3 +1,5 @@
+"use client";
+
 interface GameOverProps {
   winner: 1 | 2;
   playerNumber: 1 | 2;
@@ -9,10 +11,12 @@ export function GameOver({ winner, playerNumber, onPlayAgain }: GameOverProps) {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
-      <div className={`text-6xl font-bold mb-8 ${isWinner ? 'text-green-400' : 'text-red-400'}`}>
-        {isWinner ? 'YOU WIN!' : 'YOU LOSE'}
+      <div
+        className={`text-6xl font-bold mb-8 ${isWinner ? "text-green-400" : "text-red-400"}`}
+      >
+        {isWinner ? "YOU WIN!" : "YOU LOSE"}
       </div>
-      
+
       <div className="text-2xl mb-8 text-gray-400">
         Player {winner} wins the game!
       </div>

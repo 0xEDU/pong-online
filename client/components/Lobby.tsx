@@ -1,4 +1,6 @@
-import { useState } from 'react';
+"use client";
+
+import { useState } from "react";
 
 interface LobbyProps {
   onCreateRoom: () => void;
@@ -7,9 +9,14 @@ interface LobbyProps {
   error: string | null;
 }
 
-export function Lobby({ onCreateRoom, onJoinRoom, isConnected, error }: LobbyProps) {
-  const [roomCode, setRoomCode] = useState('');
-  const [mode, setMode] = useState<'menu' | 'join'>('menu');
+export function Lobby({
+  onCreateRoom,
+  onJoinRoom,
+  isConnected,
+  error,
+}: LobbyProps) {
+  const [roomCode, setRoomCode] = useState("");
+  const [mode, setMode] = useState<"menu" | "join">("menu");
 
   const handleJoin = () => {
     if (roomCode.trim()) {
@@ -29,14 +36,14 @@ export function Lobby({ onCreateRoom, onJoinRoom, isConnected, error }: LobbyPro
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
       <h1 className="text-6xl font-bold mb-12 text-green-400">PONG</h1>
-      
+
       {error && (
         <div className="bg-red-500/20 border border-red-500 text-red-300 px-4 py-2 rounded mb-6">
           {error}
         </div>
       )}
 
-      {mode === 'menu' ? (
+      {mode === "menu" ? (
         <div className="flex flex-col gap-4">
           <button
             onClick={onCreateRoom}
@@ -45,7 +52,7 @@ export function Lobby({ onCreateRoom, onJoinRoom, isConnected, error }: LobbyPro
             Create Game
           </button>
           <button
-            onClick={() => setMode('join')}
+            onClick={() => setMode("join")}
             className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-xl font-semibold rounded-lg transition-colors"
           >
             Join Game
@@ -63,7 +70,7 @@ export function Lobby({ onCreateRoom, onJoinRoom, isConnected, error }: LobbyPro
           />
           <div className="flex gap-4">
             <button
-              onClick={() => setMode('menu')}
+              onClick={() => setMode("menu")}
               className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition-colors"
             >
               Back
