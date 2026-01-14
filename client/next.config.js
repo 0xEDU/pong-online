@@ -4,7 +4,7 @@ const nextConfig = {
     return [
       {
         source: '/ws',
-        destination: 'http://localhost:3001/ws',
+        destination: 'http://localhost:3002/ws',
       },
     ];
   },
