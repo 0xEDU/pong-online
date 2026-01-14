@@ -15,7 +15,7 @@ function getWebSocketUrl() {
   
   const isDev = process.env.NODE_ENV === "development";
   if (isDev) {
-    return `ws://${window.location.hostname}:3002/ws`;
+    return `ws://${window.location.hostname}:3001/ws`;
   }
   return `ws://${window.location.host}/ws`;
 }
