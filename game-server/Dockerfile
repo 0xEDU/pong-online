@@ -31,11 +31,11 @@ RUN npm ci --only=production
 COPY --from=builder /app/dist ./dist
 
 # Expose the server port
-EXPOSE 3001
+EXPOSE 3002
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV PORT=3001
+ENV PORT=3002
 
 # Run the server
 CMD ["node", "dist/index.js"]
