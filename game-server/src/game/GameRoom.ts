@@ -12,8 +12,10 @@ export class GameRoom {
   readonly id: string;
   private players: Map<WebSocket, Player> = new Map();
   private engine: GameEngine;
-  private gameLoop: NodeJS.Timeout | null = null;
-  private readonly TICK_RATE = 1000 / 60; // 60 FPS
+  private gameLoopTimeout: NodeJS.Timeout | null = null;
+  private isRunning: boolean = false;
+  private lastTickTime: number = 0;
+  private readonly TICK_RATE = 1000 / 60; // 60 FPS (~16.67ms)
 
   constructor(id: string) {
     this.id = id;
@@ -81,16 +83,31 @@ export class GameRoom {
     this.engine.startGame();
     this.broadcast({ type: 'GAME_START' });
     
-    // Start game loop
-    this.gameLoop = setInterval(() => {
+    // Start precise game loop using setTimeout with timestamp tracking
+    this.isRunning = true;
+    this.lastTickTime = Date.now();
+    this.scheduleNextTick();
+  }
+
+  private scheduleNextTick(): void {
+    if (!this.isRunning) return;
+
+    const now = Date.now();
+    const elapsed = now - this.lastTickTime;
+    const delay = Math.max(0, this.TICK_RATE - elapsed);
+
+    this.gameLoopTimeout = setTimeout(() => {
+      this.lastTickTime = Date.now();
       this.tick();
-    }, this.TICK_RATE);
+      this.scheduleNextTick();
+    }, delay);
   }
 
   private stopGame(): void {
-    if (this.gameLoop) {
-      clearInterval(this.gameLoop);
-      this.gameLoop = null;
+    this.isRunning = false;
+    if (this.gameLoopTimeout) {
+      clearTimeout(this.gameLoopTimeout);
+      this.gameLoopTimeout = null;
     }
   }
 
